@@ -313,21 +313,6 @@ pydantic>=2.0.0
 python-dotenv>=1.0.0
 ```
 
-## 🤝 Contribuindo
-
-1. Crie uma branch: `git checkout -b feature/minha-feature`
-2. Commit: `git commit -m "Adiciona minha feature"`
-3. Push: `git push origin feature/minha-feature`
-4. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob licença MIT.
-
-## 👨‍💻 Autor
-
-Desenvolvido como projeto de Chatbot IA integrado com Telegram.
-
 ---
 
 **Última atualização:** Maio 2026
