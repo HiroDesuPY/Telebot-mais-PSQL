@@ -3,8 +3,6 @@ from pydantic import BaseModel
 from typing import Literal, List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
-# 💡 Importamos ambos: Usuario para buscar o número, e Historico para as mensagens
 from dados import Usuario, Historico
 
 
