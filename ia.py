@@ -1,8 +1,11 @@
 from ollama import AsyncClient
 from pydantic import BaseModel
-from typing import Literal
+from typing import Literal, List, Dict, Any
 from dados import Usuario
 from sessao import abrir_conexao
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
 
 MODEL = "llama3:8b"
 
@@ -20,35 +23,73 @@ class Message(BaseModel):
 
 
 class IA:
-    def __init__(self):
-        self.messages: list[Message] = [
-            Message(role='system',
-                    content='Você é um chatbot'                    
-                    )
-        ]
+    def __init__(self) -> None:
+        self.client: AsyncClient = AsyncClient()
 
-    def prompt(self, pergunta: str) -> str:
-        pergunta = Message(
+    async def prompt(self, sessao: AsyncSession, nome_id: int, pergunta: str) -> str:
+        query = select(Usuario).where(Usuario.nome_id == nome_id)    
+        resultado = await sessao.execute(query)
+        mensagens_banco: List[Usuario] = list(resultado.scalars().all())
+
+        mensagens_formatadas: List[Dict[str,str]] = []
+
+        if not mensagens_banco:
+            msg_sistema = Message(
+                role='system',
+                content="Você é um bot"
+            )
+            mensagens_formatadas.append(msg_sistema.model_dump()) 
+
+        else:
+            for msg in mensagens_banco:
+                msg_validada = Message(
+                    role=msg.role,
+                    content=msg.historico
+                )       
+                mensagens_formatadas.append(msg_validada.model_dump()) 
+        
+        
+        
+
+        nova_pergunta = Message(
             role='user',
             content=pergunta
         )
-        self.messages.append(pergunta)
+        mensagens_formatadas.append(nova_pergunta.model_dump()) 
 
-        resposta = chat(
+
+
+        nova_msg_usuario = Usuario(
+            nome_id = nome_id,
+            role='user',
+            historico=pergunta
+        )
+        sessao.add(nova_msg_usuario)
+
+
+
+
+
+        resposta_ollama: Dict[str,Any] = await self.client.chat(
             model=MODEL,
-            messages=[
-            mensagem.model_dump()
-            for mensagem in self.messages
-            ]
+            messages=mensagens_formatadas
         )
 
-        response = resposta['message']['content']
-            
-        mensagem_ia = Message(
+        response_text: str = resposta_ollama['message']['content']
+
+        resposta_ia = Message(
             role='assistant',
-            content=response
+            content=response_text
         )
 
-        self.messages.append(mensagem_ia)
+        nova_msg_ia = Usuario(
+            nome_id=nome_id,
+            role=resposta_ia.role,
+            historico=resposta_ia.content
+        )
 
-        return resposta['message']['content']
+        sessao.add(nova_msg_ia)
+
+        await sessao.commit()
+
+        return response_text
