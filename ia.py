@@ -26,8 +26,8 @@ class IA:
     def __init__(self) -> None:
         self.client: AsyncClient = AsyncClient()
 
-    async def prompt(self, sessao: AsyncSession, chat_id: int, pergunta: str) -> str:
-        query = select(Usuario).where(Usuario.chat_id == chat_id)    
+    async def prompt(self, sessao: AsyncSession, nome_id: int, pergunta: str) -> str:
+        query = select(Usuario).where(Usuario.nome_id == nome_id)    
         resultado = await sessao.execute(query)
         mensagens_banco: List[Usuario] = list(resultado.scalars().all())
 
@@ -44,7 +44,7 @@ class IA:
             for msg in mensagens_banco:
                 msg_validada = Message(
                     role=msg.role,
-                    content=msg.content
+                    content=msg.historico
                 )       
                 mensagens_formatadas.append(msg_validada.model_dump()) 
         
@@ -60,9 +60,9 @@ class IA:
 
 
         nova_msg_usuario = Usuario(
-            chat_id = chat_id,
+            nome_id = nome_id,
             role='user',
-            content=pergunta
+            historico=pergunta
         )
         sessao.add(nova_msg_usuario)
 
@@ -83,9 +83,9 @@ class IA:
         )
 
         nova_msg_ia = Usuario(
-            chat_id=chat_id,
+            nome_id=nome_id,
             role=resposta_ia.role,
-            content=resposta_ia.content
+            historico=resposta_ia.content
         )
 
         sessao.add(nova_msg_ia)
