@@ -16,6 +16,16 @@ class Usuario(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     nome_id: Mapped[int] = mapped_column(BigInteger, index=True)
+    numero: Mapped[int] = mapped_column(BigInteger, nullable=True, unique=True)
+    mensagens: Mapped[list['Historico']] = relationship('Historico', back_populates='usuario', cascade='all, delete-orphan')
+
+
+class Historico(Base):
+    __tablename__ = 'historicos'
+
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    numero: Mapped[int] = mapped_column(BigInteger, ForeignKey('usuarios.numero'))
     historico: Mapped[str] = mapped_column(String, nullable=False)
     role: Mapped[str] = mapped_column(String, nullable=False)
-    numero: Mapped[int] = mapped_column(BigInteger, nullable=True)
+    usuario: Mapped['Usuario'] = relationship('Usuario', back_populates='mensagens', primaryjoin='Historico.numero == Usuario.numero')

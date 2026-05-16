@@ -29,7 +29,6 @@ def botao_permissao():
 @bot.message_handler(content_types=['contact'])
 async def receber_contato(message):
     telegram_id = message.contact.user_id
-    numero_tel = message.contact.phone_number
     numero_tel = message.contact.phone_number.replace("+", "")
     chat_id = message.chat.id
 
@@ -44,11 +43,9 @@ async def receber_contato(message):
 
         else:
             novo_usuario = Usuario(
-            nome_id = telegram_id,
-            numero=numero_tel,
-            historico="",
-            role="user"
-        )
+                nome_id = telegram_id,
+                numero=numero_tel
+            )
             sessao.add(novo_usuario)
 
 
