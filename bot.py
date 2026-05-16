@@ -3,7 +3,7 @@ from telebot import types
 from telebot.async_telebot import AsyncTeleBot
 from config import TELETOKEN
 from ia import IA
-
+from sessao import abrir_conexao
 
 bot = AsyncTeleBot(TELETOKEN)
 
@@ -38,8 +38,14 @@ async def comecar(message):
     await bot.send_chat_action(message.chat.id, "typing")
     
     try:
-        resposta = ia.prompt(message.text)
-        await bot.send_message(message.chat.id, resposta, reply_markup=markup)
+        async for sessao in abrir_conexao():
+            resposta = await ia.prompt(
+                sessao=sessao,
+                chat_id=message.chat.id,
+                pergunta=message.text
+            )
+
+            await bot.send_message(message.chat.id, resposta, reply_markup=markup)
 
     except Exception as e:
         await bot.send_message(message.chat.id, f'Erro: {e}')
