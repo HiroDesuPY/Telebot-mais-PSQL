@@ -3,8 +3,8 @@ import os
 
 
 load_dotenv()
-ENGINESQL = os.environ.get("DATABASE_URL")
-TELETOKEN = os.environ.get("TELETOKEN")
+ENGINESQL = os.getenv("ENGINE")
+TELETOKEN = os.getenv("TELETOKEN")
 
 
 print(ENGINESQL)
