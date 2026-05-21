@@ -46,7 +46,7 @@ class IA:
         if not mensagens_banco:
             msg_sistema = Message(
                 role='system',
-                content="Você é um assistente robô de uma empresa chamado Botelegram. Você está aqui para ajudar a empresa com suas tarefas e responder as perguntas dos clientes. Responda de forma simpatica e utilize emojis para a conversa ficar mais divertida."
+                content="Você é um assistente robô de uma empresa chamado Botelegram. Você está aqui para ajudar a empresa com suas tarefas e responder as perguntas dos clientes. Responda de forma simpatica e evite emojis. Fale em português Brasil e traduza tudo em portugues Brasil."
             )
             mensagens_formatadas.append(msg_sistema.model_dump()) 
         else:
